@@ -1,14 +1,51 @@
+"use client"
+
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+const heroImages = [
+  "/Hero1.jpg",
+  "/Hero2.jpg",
+  "/Hero3.jpg",
+  "/Hero4.jpg"
+];
 export default function Hero() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="relative  min-h-screen w-full overflow-hidden pt-25">
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={heroImages[index]}
+          className="absolute inset-0"
+          initial={{ opacity: 0, scale: 1.08 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{
+            duration: 1.5,
+            ease: "easeInOut",
+          }}
+        >
       {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600')",
-        }}
-      />
+     <Image
+            src={heroImages[index]}
+            alt="Hero Background"
+            fill
+            priority
+            className="object-cover object-center"
+          />
+        </motion.div>
+      </AnimatePresence>
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/40" />

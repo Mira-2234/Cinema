@@ -4,7 +4,16 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
-import AboutPage from "@/components/About";
+import AboutPage from "@/components/LatestBlogs";
+import BrowseGenres from "@/components/BrowseGenres";
+import WhyChoose from "@/components/WhyChoose";
+import FeaturedCollections from "@/components/FeaturedCollections";
+import Testimonials from "@/components/Testimonials";
+import Statistics from "@/components/FAQ";
+import FAQ from "@/components/FAQ";
+import CTA from "@/components/LatestBlogs";
+import LatestBlogs from "@/components/LatestBlogs";
+import StreamingPlatforms from "@/components/StreamingPlatforms";
 
 const bebasNeue = Bebas_Neue({
   variable: "--font-bebas",
@@ -35,7 +44,13 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Navbar/>
         <Hero/>
-        <AboutPage/>
+        <BrowseGenres/>
+        <WhyChoose/>
+        <FeaturedCollections/>
+        <StreamingPlatforms/>
+        <Testimonials/>
+        <FAQ/>
+        <LatestBlogs/>
         {children}
         <Footer/>
         </body>

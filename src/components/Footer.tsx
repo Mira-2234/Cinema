@@ -58,7 +58,7 @@ export default function Footer() {
           </p>
 
           <p className="mt-2 text-gray-400">
-            📍 Tokoyo, Japan
+            📍 Tokyo, Japan
           </p>
 
           
