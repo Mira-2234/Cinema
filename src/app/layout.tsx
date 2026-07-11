@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import Footer from "@/components/Footer";
+import AboutPage from "@/components/About";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas",
+  weight: "400",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -25,9 +30,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${bebasNeue.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Navbar/>
+        <Hero/>
+        <AboutPage/>
+        {children}
+        <Footer/>
+        </body>
     </html>
   );
 }
