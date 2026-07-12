@@ -43,7 +43,7 @@ export default function MyMoviesStats({ movies }: Props) {
   const latestYear =
     movies.length > 0 ? Math.max(...movies.map((m) => m.releaseYear)) : "-";
 
-  // Genre distribution for bar chart
+  
   const genreMap: Record<string, number> = {};
   movies.forEach((m) => {
     genreMap[m.genre] = (genreMap[m.genre] || 0) + 1;
@@ -55,7 +55,7 @@ export default function MyMoviesStats({ movies }: Props) {
 
   return (
     <div className="mb-10 space-y-6">
-      {/* Summary cards */}
+     
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <StatCard label="Total Added" value={totalMovies.toString()} />
         <StatCard label="Genres Covered" value={uniqueGenres.toString()} />
@@ -63,7 +63,7 @@ export default function MyMoviesStats({ movies }: Props) {
         <StatCard label="Latest Release" value={String(latestYear)} />
       </div>
 
-      {/* Genre breakdown chart — only show if there's data */}
+    
       {genreData.length > 0 && (
         <div className="rounded-2xl border border-white/10 bg-neutral-900 p-6">
           <h3 className="mb-6 text-sm font-semibold uppercase tracking-wide text-gray-400">
