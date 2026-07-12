@@ -40,7 +40,7 @@ export default function WhyChoose() {
   return (
     <section className="bg-[#0B0B0B] py-24">
       <div className="mx-auto max-w-7xl px-5">
-        {/* Heading */}
+ 
         <div className="mx-auto mb-16 max-w-3xl text-center">
           <p className="text-sm font-semibold uppercase tracking-[6px] text-red-500">
             Why ReelBox

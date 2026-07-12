@@ -111,7 +111,7 @@ export default function PopularMovies() {
           </div>
         )}
 
-        {/* View All Button */}
+      
         <div className="mt-14 flex justify-center">
           <Link
             href="/explore"
