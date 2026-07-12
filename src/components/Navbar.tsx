@@ -1,106 +1,180 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Menu, X, Film } from "lucide-react";
-
-const navLinks = [
-  { name: "Home", href: "/" },
-  { name: "Movies", href: "/movies" },
-  { name: "Explore", href: "/explore" },
-  { name: "About", href: "/about" },
-];
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  async function handleLogout() {
+    await logout();
+    setMenuOpen(false);
+    router.push("/");
+    router.refresh();
+  }
+
+  const loggedOutLinks = [
+    { href: "/", label: "Home" },
+    { href: "/explore", label: "Explore" },
+    { href: "/about", label: "About" },
+  ];
+
+  const loggedInLinks = [
+    ...loggedOutLinks,
+    { href: "/items/manage", label: "My Items" },
+  ];
+
+  const links = user ? loggedInLinks : loggedOutLinks;
 
   return (
-    <header className="fixed top-0 left-0 z-50 w-full border-b border-white/10 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0B0B]/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          {/* <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 shadow-lg shadow-red-600/30">
-            <Film className="h-6 w-6 text-white" />
-          </div> */}
-
-          <h1
-            className="text-4xl tracking-[0.18em] text-white"
-            style={{ fontFamily: "var(--font-bebas)" }}
-          >
-            ReelBox
-          </h1>
+        <Link
+          href="/"
+          className="text-2xl font-bold tracking-widest text-white"
+          style={{ fontFamily: "var(--font-bebas)" }}
+        >
+          REELBOX
         </Link>
 
-        {/* Desktop Menu */}
-        <nav className="hidden items-center gap-8 lg:flex">
-          {navLinks.map((item) => (
+        {/* Desktop Nav */}
+        <nav className="hidden items-center gap-8 md:flex">
+          {links.map((link) => (
             <Link
-              key={item.name}
-              href={item.href}
-              className="relative text-sm font-medium text-gray-300 transition-all duration-300 hover:text-red-500 after:absolute after:-bottom-2 after:left-0 after:h-[2px] after:w-0 after:bg-red-500 after:transition-all after:duration-300 hover:after:w-full"
+              key={link.href}
+              href={link.href}
+              className="text-sm text-gray-300 transition hover:text-white"
             >
-              {item.name}
+              {link.label}
             </Link>
           ))}
         </nav>
 
-        {/* Right Buttons */}
-        <div className="hidden items-center gap-4 lg:flex">
-          <Link
-            href="/login"
-            className="rounded-full border border-white/20 px-5 py-2 text-sm font-medium text-white transition hover:border-red-500 hover:text-red-500"
-          >
-            Login
-          </Link>
-
-          <Link
-            href="/register"
-            className="rounded-full bg-red-600 px-6 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/40"
-          >
-            Sign Up
-          </Link>
-        </div>
-
-        {/* Mobile Button */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="text-white lg:hidden"
-        >
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="border-t border-white/10 bg-black/95 backdrop-blur-xl lg:hidden">
-          <div className="space-y-2 px-6 py-6">
-            {navLinks.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setIsOpen(false)}
-                className="block rounded-lg px-4 py-3 text-gray-300 transition hover:bg-white/5 hover:text-red-500"
+        {/* Right side */}
+        <div className="hidden items-center gap-4 md:flex">
+          {loading ? (
+            <div className="h-9 w-24 animate-pulse rounded-full bg-white/10" />
+          ) : user ? (
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-full border border-white/15 px-3 py-2 text-sm text-white transition hover:border-white/30"
               >
-                {item.name}
-              </Link>
-            ))}
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-xs font-semibold">
+                  {user.name.charAt(0).toUpperCase()}
+                </span>
+                {user.name.split(" ")[0]}
+              </button>
 
-            <div className="mt-6 flex flex-col gap-3">
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-48 overflow-hidden rounded-xl border border-white/10 bg-[#141414] shadow-xl">
+                  <Link
+                    href="/items/add"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-4 py-3 text-sm text-gray-200 hover:bg-white/5"
+                  >
+                    Add Movie
+                  </Link>
+                  <Link
+                    href="/items/manage"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-4 py-3 text-sm text-gray-200 hover:bg-white/5"
+                  >
+                    Manage Items
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-white/5"
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
               <Link
                 href="/login"
-                className="rounded-full border border-white/20 py-3 text-center text-white transition hover:border-red-500 hover:text-red-500"
+                className="rounded-full border border-white/20 px-5 py-2 text-sm text-white transition hover:border-white/40"
               >
                 Login
               </Link>
-
               <Link
                 href="/register"
-                className="rounded-full bg-red-600 py-3 text-center font-semibold text-white transition hover:bg-red-700"
+                className="rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-500"
               >
                 Sign Up
               </Link>
-            </div>
-          </div>
+            </>
+          )}
+        </div>
+
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          className="text-white md:hidden"
+          aria-label="Toggle menu"
+        >
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Nav */}
+      {menuOpen && (
+        <div className="border-t border-white/10 bg-[#0B0B0B] px-5 py-4 md:hidden">
+          <nav className="flex flex-col gap-4">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="text-sm text-gray-300 hover:text-white"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {user ? (
+              <>
+                
+                <button
+                  onClick={handleLogout}
+                  className="text-left text-sm text-red-400"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-sm text-gray-300 hover:text-white"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-sm font-semibold text-red-400"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </nav>
         </div>
       )}
     </header>

@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const heroImages = [
@@ -73,9 +74,13 @@ export default function Hero() {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-5">
-            <button className="rounded-full bg-red-600 px-8 py-4 font-semibold text-white transition hover:bg-red-700">
-              ▶ Watch Now
-            </button>
+
+            <Link href="/movies"
+            className="rounded-full bg-red-600 px-8 py-4 font-semibold text-white transition hover:bg-red-700">
+
+            ▶ Watch Now
+            </Link>
+            
 
             <button className="rounded-full border border-white/20 px-8 py-4 font-semibold text-white transition hover:border-red-500 hover:text-red-500">
               Browse Movies

@@ -3,10 +3,11 @@
 import { useState, FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import { useAuth } from "@/context/AuthContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
-// Demo account — DB-te seed kore rakhte hobe (bcrypt hashed password diye)
 const DEMO_EMAIL = "demo@reelbox.com";
 const DEMO_PASSWORD = "demo1234";
 
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
+  const { refetchUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,6 +66,7 @@ export default function LoginPage() {
         return;
       }
 
+      await refetchUser();
       router.push(redirectTo);
       router.refresh();
     } catch {
@@ -86,8 +89,42 @@ export default function LoginPage() {
     submitLogin(DEMO_EMAIL, DEMO_PASSWORD);
   }
 
+  async function handleGoogleSuccess(credentialResponse: CredentialResponse) {
+    if (!credentialResponse.credential) {
+      setErrors({ form: "Google login failed. Please try again." });
+      return;
+    }
+
+    setLoading(true);
+    setErrors({});
+
+    try {
+      const res = await fetch(`${API_URL}/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrors({ form: data.message || "Google login failed." });
+        return;
+      }
+
+      await refetchUser();
+      router.push(redirectTo);
+      router.refresh();
+    } catch {
+      setErrors({ form: "Could not reach the server. Check your connection." });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-neutral-950 px-4 mt-20">
+    <main className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
         <h1 className="text-2xl font-bold text-white mb-1">Log in to ReelBox</h1>
         <p className="text-neutral-400 text-sm mb-6">
@@ -99,6 +136,23 @@ export default function LoginPage() {
             {errors.form}
           </div>
         )}
+
+        {/* Google Login */}
+        <div className="mb-4 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setErrors({ form: "Google login failed. Please try again." })}
+            theme="filled_black"
+            shape="pill"
+            width="336"
+          />
+        </div>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-px flex-1 bg-neutral-800" />
+          <span className="text-xs text-neutral-500">or</span>
+          <div className="h-px flex-1 bg-neutral-800" />
+        </div>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div>
@@ -115,9 +169,7 @@ export default function LoginPage() {
               }`}
               placeholder="you@example.com"
             />
-            {errors.email && (
-              <p className="mt-1 text-xs text-red-400">{errors.email}</p>
-            )}
+            {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
           </div>
 
           <div>
@@ -148,17 +200,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="flex items-center gap-3 my-5">
-          <div className="h-px flex-1 bg-neutral-800" />
-          <span className="text-xs text-neutral-500">or</span>
-          <div className="h-px flex-1 bg-neutral-800" />
-        </div>
-
         <button
           type="button"
           onClick={handleDemoLogin}
           disabled={loading}
-          className="w-full rounded-lg border border-neutral-700 hover:border-neutral-500 disabled:opacity-50 text-neutral-200 font-medium py-2.5 transition-colors"
+          className="mt-4 w-full rounded-lg border border-neutral-700 hover:border-neutral-500 disabled:opacity-50 text-neutral-200 font-medium py-2.5 transition-colors"
         >
           {loading ? "Please wait..." : "Try demo login"}
         </button>

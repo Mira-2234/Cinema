@@ -3,6 +3,8 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import { useAuth } from "@/context/AuthContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
@@ -16,6 +18,7 @@ interface FormErrors {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { refetchUser } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -73,6 +76,41 @@ export default function RegisterPage() {
         return;
       }
 
+      await refetchUser();
+      router.push("/");
+      router.refresh();
+    } catch {
+      setErrors({ form: "Could not reach the server. Check your connection." });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleSuccess(credentialResponse: CredentialResponse) {
+    if (!credentialResponse.credential) {
+      setErrors({ form: "Google sign up failed. Please try again." });
+      return;
+    }
+
+    setLoading(true);
+    setErrors({});
+
+    try {
+      const res = await fetch(`${API_URL}/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrors({ form: data.message || "Google sign up failed." });
+        return;
+      }
+
+      await refetchUser();
       router.push("/");
       router.refresh();
     } catch {
@@ -83,7 +121,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-neutral-950 px-4 mt-20">
+    <main className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
         <h1 className="text-2xl font-bold text-white mb-1">Create your ReelBox account</h1>
         <p className="text-neutral-400 text-sm mb-6">
@@ -95,6 +133,23 @@ export default function RegisterPage() {
             {errors.form}
           </div>
         )}
+
+        {/* Google Sign Up */}
+        <div className="mb-4 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setErrors({ form: "Google sign up failed. Please try again." })}
+            theme="filled_black"
+            shape="pill"
+            width="336"
+          />
+        </div>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-px flex-1 bg-neutral-800" />
+          <span className="text-xs text-neutral-500">or</span>
+          <div className="h-px flex-1 bg-neutral-800" />
+        </div>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div>
