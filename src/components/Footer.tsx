@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-black">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-4">
-        {/* Logo */}
+      
         <div>
           <h2
             className="text-4xl text-white"
@@ -19,7 +19,7 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Explore */}
+      
         <div>
           <h3 className="mb-5 text-xl font-semibold text-white">
             Explore

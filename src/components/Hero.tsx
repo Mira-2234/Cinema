@@ -37,7 +37,7 @@ export default function Hero() {
             ease: "easeInOut",
           }}
         >
-      {/* Background Image */}
+   
      <Image
             src={heroImages[index]}
             alt="Hero Background"
