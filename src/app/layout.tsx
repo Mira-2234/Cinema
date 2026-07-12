@@ -14,6 +14,7 @@ import FAQ from "@/components/FAQ";
 import CTA from "@/components/LatestBlogs";
 import LatestBlogs from "@/components/LatestBlogs";
 import StreamingPlatforms from "@/components/StreamingPlatforms";
+import TrendingMovies from "@/components/TrendingMovies";
 
 const bebasNeue = Bebas_Neue({
   variable: "--font-bebas",
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Navbar/>
         <Hero/>
+       <TrendingMovies/>
         <BrowseGenres/>
         <WhyChoose/>
         <FeaturedCollections/>

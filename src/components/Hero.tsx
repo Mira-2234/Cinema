@@ -5,10 +5,10 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const heroImages = [
-  "/Hero1.jpg",
+  // "/Hero1.jpg",
   "/Hero2.jpg",
-  "/Hero3.jpg",
-  "/Hero4.jpg"
+  // "/Hero3.jpg",
+  // "/Hero4.jpg"
 ];
 export default function Hero() {
   const [index, setIndex] = useState(0);
@@ -42,7 +42,7 @@ export default function Hero() {
             alt="Hero Background"
             fill
             priority
-            className="object-cover object-center"
+            className="object-cover ml-60"
           />
         </motion.div>
       </AnimatePresence>
