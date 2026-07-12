@@ -70,7 +70,7 @@ export default function StatisticsSection() {
     );
   }
 
-  // ---- Derived stats from real data ----
+ 
 
   const totalMovies = movies.length;
 
@@ -83,7 +83,7 @@ export default function StatisticsSection() {
       ? (movies.reduce((sum, m) => sum + m.rating, 0) / movies.length).toFixed(1)
       : "0.0";
 
-  // Genre distribution (bar chart)
+  
   const genreMap: Record<string, number> = {};
   movies.forEach((m) => {
     genreMap[m.genre] = (genreMap[m.genre] || 0) + 1;
@@ -93,7 +93,7 @@ export default function StatisticsSection() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 8);
 
-  // Language distribution (pie chart)
+ 
   const languageMap: Record<string, number> = {};
   movies.forEach((m) => {
     languageMap[m.language] = (languageMap[m.language] || 0) + 1;
@@ -118,7 +118,7 @@ export default function StatisticsSection() {
           </p>
         </div>
 
-        {/* Summary cards */}
+        
         <div className="mb-12 grid grid-cols-2 gap-6 md:grid-cols-4">
           <StatCard label="Total Movies" value={totalMovies.toString()} />
           <StatCard label="Genres Covered" value={uniqueGenres.toString()} />
@@ -126,9 +126,9 @@ export default function StatisticsSection() {
           <StatCard label="Average Rating" value={`${avgRating} / 10`} />
         </div>
 
-        {/* Charts */}
+    
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Bar Chart — Genre distribution */}
+          
           <div className="rounded-2xl border border-white/10 bg-neutral-900 p-6">
             <h3 className="mb-6 text-lg font-semibold text-white">
               Movies by Genre
@@ -160,7 +160,7 @@ export default function StatisticsSection() {
             </ResponsiveContainer>
           </div>
 
-          {/* Pie Chart — Language distribution */}
+    
           <div className="rounded-2xl border border-white/10 bg-neutral-900 p-6">
             <h3 className="mb-6 text-lg font-semibold text-white">
               Movies by Language
