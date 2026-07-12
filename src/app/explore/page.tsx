@@ -63,7 +63,6 @@ export default function ExplorePage() {
       }
     });
 
-    // filter/search/sort change hole page 1-e reset koro
     if (!("page" in updates)) {
       params.set("page", "1");
     }
@@ -71,7 +70,7 @@ export default function ExplorePage() {
     router.push(`/explore?${params.toString()}`);
   }
 
-  // Load filter dropdown options — ekbar e
+  
   useEffect(() => {
     async function loadFilters() {
       try {
@@ -84,13 +83,13 @@ export default function ExplorePage() {
           languages: data.languages || [],
         });
       } catch {
-        // filter dropdown fail hole bhi page use kora jabe, silently ignore
+        
       }
     }
     loadFilters();
   }, []);
 
-  // Debounced search — URL update
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchDraft !== searchInput) {
@@ -99,10 +98,10 @@ export default function ExplorePage() {
     }, 400);
 
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [searchDraft]);
 
-  // Fetch movies jokhon-i URL params change hoy
+  
   const fetchMovies = useCallback(async () => {
     setLoading(true);
 
@@ -144,7 +143,7 @@ export default function ExplorePage() {
   return (
     <main className="min-h-screen bg-[#0B0B0B] px-5 pt-28 pb-20">
       <div className="mx-auto max-w-7xl">
-        {/* Header */}
+    
         <div className="mb-10 text-center">
           <p className="text-sm uppercase tracking-[6px] text-red-500">
             Explore
@@ -157,7 +156,7 @@ export default function ExplorePage() {
           </h1>
         </div>
 
-        {/* Search bar */}
+       
         <div className="mx-auto mb-6 max-w-2xl">
           <div className="relative">
             <input
@@ -183,7 +182,7 @@ export default function ExplorePage() {
           </div>
         </div>
 
-        {/* Filters + Sort */}
+      
         <div className="mb-10 flex flex-wrap items-center justify-center gap-3">
           <select
             value={genre}
@@ -298,7 +297,6 @@ export default function ExplorePage() {
           </div>
         )}
 
-        {/* Pagination */}
         {!loading && totalPages > 1 && (
           <div className="mt-14 flex items-center justify-center gap-2">
             <button

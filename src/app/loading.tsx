@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 export default function Loading() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#0B0B0F] overflow-hidden">
-      {/* Background Glow */}
+    
       <div className="absolute h-96 w-96 rounded-full bg-red-600/20 blur-[140px]" />
 
       <div className="relative flex flex-col items-center gap-8">

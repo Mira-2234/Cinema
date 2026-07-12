@@ -134,7 +134,7 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {/* Google Sign Up */}
+   
         <div className="mb-4 flex justify-center">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}

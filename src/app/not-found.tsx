@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-6">
 
-      {/* Background Glow */}
+     
       <div className="absolute -left-32 top-20 h-72 w-72 rounded-full bg-red-600/20 blur-[140px]" />
       <div className="absolute -right-32 bottom-20 h-72 w-72 rounded-full bg-red-500/20 blur-[140px]" />
 

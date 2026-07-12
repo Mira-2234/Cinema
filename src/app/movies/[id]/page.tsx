@@ -45,7 +45,7 @@ export default async function MovieDetailsPage({
 
   return (
     <main className="min-h-screen bg-[#0B0B0B] pb-20">
-      {/* ================= Banner ================= */}
+    
       <section className="relative h-[55vh] w-full md:h-[65vh]">
         <Image
           src={movie.banner || movie.poster}
@@ -100,12 +100,12 @@ export default async function MovieDetailsPage({
         </div>
       </section>
 
-      {/* ================= Body ================= */}
+    
       <div className="mx-auto max-w-6xl px-5 pt-12">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
-          {/* Left: Overview + Specs */}
+     
           <div className="space-y-10 lg:col-span-2">
-            {/* Overview */}
+          
             <div>
               <h2 className="text-2xl font-semibold text-white">Overview</h2>
               <p className="mt-4 leading-relaxed text-gray-400">
@@ -113,7 +113,7 @@ export default async function MovieDetailsPage({
               </p>
             </div>
 
-            {/* Specifications */}
+          
             <div>
               <h2 className="text-2xl font-semibold text-white">
                 Key Information
@@ -135,7 +135,7 @@ export default async function MovieDetailsPage({
             </div>
           </div>
 
-          {/* Right: Rating card */}
+         
           <div>
             <div className="rounded-2xl border border-white/10 bg-neutral-900 p-6 text-center">
               <p className="text-sm uppercase tracking-widest text-gray-400">
@@ -156,7 +156,7 @@ export default async function MovieDetailsPage({
           </div>
         </div>
 
-        {/* ================= Related Movies ================= */}
+    
         <div className="mt-16">
           <h2 className="mb-6 text-2xl font-semibold text-white">
             Related Movies
