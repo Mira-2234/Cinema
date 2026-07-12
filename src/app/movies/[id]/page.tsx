@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { redirect, notFound } from "next/navigation";
-import { verifyToken, AUTH_COOKIE } from "@/lib/auth";
 
 import MovieBanner from "@/components/movies/MovieBanner";
 import MovieInfo from "@/components/movies/MovieInfo";
@@ -25,35 +24,40 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-async function getMovie(id: string): Promise<Movie | null> {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/movies/${id}`, {
-      cache: "no-store",
-    });
-    if (!res.ok) return null;
-    return res.json();
-  } catch {
-    return null;
-  }
+async function getMovie(id: string, token: string) {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/movies/${id}`, {
+    headers: { Cookie: `cinema_auth_token=${token}` },
+    cache: "no-store",
+  });
+
+  return res;
 }
 
 export default async function MovieDetailsPage({ params }: Props) {
   const { id } = await params;
 
-  // Auth check — runs before any data fetching or rendering
   const cookieStore = await cookies();
-  const token = cookieStore.get(AUTH_COOKIE)?.value;
-  const user = token ? await verifyToken(token) : null;
+  const token = cookieStore.get("cinema_auth_token")?.value;
 
-  if (!user) {
+  if (!token) {
     redirect(`/login?redirect=/movies/${id}`);
   }
 
-  const movie = await getMovie(id);
+  const res = await getMovie(id, token);
 
-  if (!movie) {
+  if (res.status === 401) {
+    redirect(`/login?redirect=/movies/${id}`);
+  }
+
+  if (res.status === 404) {
     notFound();
   }
+
+  if (!res.ok) {
+    throw new Error("Failed to load movie");
+  }
+
+  const movie: Movie = await res.json();
 
   return (
     <main className="bg-black">
