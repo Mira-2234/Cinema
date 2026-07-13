@@ -164,7 +164,7 @@ export default function RegisterPage() {
               className={`w-full rounded-lg bg-neutral-800 border px-3 py-2 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 ${
                 errors.name ? "border-red-600" : "border-neutral-700"
               }`}
-              placeholder="Rahim Uddin"
+              placeholder="Your Name"
             />
             {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name}</p>}
           </div>
