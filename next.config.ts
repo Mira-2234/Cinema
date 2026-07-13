@@ -33,6 +33,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+ async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://cinema-server-1.onrender.com/:path*",
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
