@@ -3,11 +3,14 @@
 import { useState, FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import {
+  GoogleLogin,
+  CredentialResponse,
+} from "@react-oauth/google";
 import { useAuth } from "@/context/AuthContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
-// Demo account
 const DEMO_EMAIL = "demo@reelbox.com";
 const DEMO_PASSWORD = "demo1234";
 
@@ -20,7 +23,6 @@ interface FormErrors {
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const { refetchUser } = useAuth();
 
   const redirectTo = searchParams.get("redirect") || "/";
@@ -30,13 +32,15 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
 
-  function validate(): boolean {
+  function validate() {
     const next: FormErrors = {};
 
     if (!email.trim()) {
       next.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      next.email = "Enter a valid email address";
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      next.email = "Enter a valid email";
     }
 
     if (!password) {
@@ -49,7 +53,10 @@ export default function LoginPage() {
     return Object.keys(next).length === 0;
   }
 
-  async function submitLogin(loginEmail: string, loginPassword: string) {
+  async function submitLogin(
+    loginEmail: string,
+    loginPassword: string
+  ) {
     setLoading(true);
     setErrors({});
 
@@ -70,19 +77,18 @@ export default function LoginPage() {
 
       if (!res.ok) {
         setErrors({
-          form: data.message || "Login failed. Please try again.",
+          form: data.message || "Login failed.",
         });
         return;
       }
 
-      // ⭐ Update user in AuthContext
       await refetchUser();
 
       router.push(redirectTo);
       router.refresh();
     } catch {
       setErrors({
-        form: "Could not reach the server. Check your connection.",
+        form: "Could not connect to server.",
       });
     } finally {
       setLoading(false);
@@ -97,15 +103,53 @@ export default function LoginPage() {
     await submitLogin(email, password);
   }
 
-  function handleDemoLogin() {
-    setEmail(DEMO_EMAIL);
-    setPassword(DEMO_PASSWORD);
+  async function handleGoogleSuccess(
+    credentialResponse: CredentialResponse
+  ) {
+    if (!credentialResponse.credential) return;
+
+    setLoading(true);
     setErrors({});
 
+    try {
+      const res = await fetch(`${API_URL}/auth/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          credential: credentialResponse.credential,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrors({
+          form: data.message || "Google Login failed.",
+        });
+        return;
+      }
+
+      await refetchUser();
+
+      router.push("/");
+      router.refresh();
+    } catch {
+      setErrors({
+        form: "Google Login failed.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleDemoLogin() {
     submitLogin(DEMO_EMAIL, DEMO_PASSWORD);
   }
 
-  return (
+    return (
     <main className="mt-20 flex min-h-screen items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 shadow-xl">
         <h1 className="mb-1 text-2xl font-bold text-white">
@@ -113,7 +157,7 @@ export default function LoginPage() {
         </h1>
 
         <p className="mb-6 text-sm text-neutral-400">
-          Find cinema halls, showtimes, and more near you.
+          Find cinema halls, showtimes and movies near you.
         </p>
 
         {errors.form && (
@@ -122,7 +166,33 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        {/* Google Login */}
+
+        <div className="mb-5 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() =>
+              setErrors({
+                form: "Google login failed. Please try again.",
+              })
+            }
+            theme="filled_black"
+            shape="pill"
+            width="336"
+          />
+        </div>
+
+        <div className="mb-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-neutral-800" />
+          <span className="text-xs text-neutral-500">or</span>
+          <div className="h-px flex-1 bg-neutral-800" />
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="space-y-4"
+        >
           <div>
             <label
               htmlFor="email"
@@ -137,8 +207,10 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className={`w-full rounded-lg border bg-neutral-800 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-red-600 ${
-                errors.email ? "border-red-600" : "border-neutral-700"
+              className={`w-full rounded-lg border bg-neutral-800 px-3 py-2 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 ${
+                errors.email
+                  ? "border-red-600"
+                  : "border-neutral-700"
               }`}
             />
 
@@ -163,8 +235,10 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className={`w-full rounded-lg border bg-neutral-800 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-red-600 ${
-                errors.password ? "border-red-600" : "border-neutral-700"
+              className={`w-full rounded-lg border bg-neutral-800 px-3 py-2 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 ${
+                errors.password
+                  ? "border-red-600"
+                  : "border-neutral-700"
               }`}
             />
 
@@ -182,21 +256,22 @@ export default function LoginPage() {
           >
             {loading ? "Logging in..." : "Log in"}
           </button>
+
+          <div className="flex items-center gap-3 py-2">
+            <div className="h-px flex-1 bg-neutral-800" />
+            <span className="text-xs text-neutral-500">or</span>
+            <div className="h-px flex-1 bg-neutral-800" />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={loading}
+            className="w-full rounded-lg border border-neutral-700 py-2.5 font-medium text-neutral-200 transition hover:border-neutral-500 disabled:opacity-50"
+          >
+            {loading ? "Please wait..." : "Try Demo Login"}
+          </button>
         </form>
-
-        <div className="my-5 flex items-center gap-3">
-          <div className="h-px flex-1 bg-neutral-800" />
-          <span className="text-xs text-neutral-500">or</span>
-          <div className="h-px flex-1 bg-neutral-800" />
-        </div>
-
-        <button
-          onClick={handleDemoLogin}
-          disabled={loading}
-          className="w-full rounded-lg border border-neutral-700 py-2.5 font-medium text-neutral-200 transition hover:border-neutral-500 disabled:opacity-50"
-        >
-          {loading ? "Please wait..." : "Try Demo Login"}
-        </button>
 
         <p className="mt-6 text-center text-sm text-neutral-400">
           Don't have an account?{" "}
