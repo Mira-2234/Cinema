@@ -52,7 +52,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/40" />
 
       {/* Content */}
-      <div className="relative mx-auto flex h-full max-w-7xl items-center px-6">
+      <div className="relative mx-auto flex h-full max-w-7xl items-center px-10 ">
         <div className="max-w-2xl">
           <span className="rounded-full border border-red-500/40 bg-red-600/20 px-4 py-2 text-sm text-red-400">
             #1 Movie Streaming Platform
