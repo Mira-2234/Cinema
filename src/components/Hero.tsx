@@ -75,7 +75,7 @@ export default function Hero() {
 
           <div className="mt-10 flex flex-wrap gap-5">
 
-            <Link href="/movies"
+            <Link href="/explore"
             className="rounded-full bg-red-600 px-8 py-4 font-semibold text-white transition hover:bg-red-700">
 
             ▶ Watch Now
