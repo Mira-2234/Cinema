@@ -263,14 +263,14 @@ export default function LoginPage() {
             <div className="h-px flex-1 bg-neutral-800" />
           </div>
 
-          <button
+          {/* <button
             type="button"
             onClick={handleDemoLogin}
             disabled={loading}
             className="w-full rounded-lg border border-neutral-700 py-2.5 font-medium text-neutral-200 transition hover:border-neutral-500 disabled:opacity-50"
           >
             {loading ? "Please wait..." : "Try Demo Login"}
-          </button>
+          </button> */}
         </form>
 
         <p className="mt-6 text-center text-sm text-neutral-400">
