@@ -1,10 +1,13 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect, notFound } from "next/navigation";
-import { cookies } from "next/headers";
+import { useParams, notFound } from "next/navigation";
+import RequireAuth from "@/components/RequireAuth";
 import RelatedMovies from "@/components/movies/RelatedMovies";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
+const API_URL = "https://cinema-server-1.onrender.com";
 
 interface Movie {
   _id: string;
@@ -22,35 +25,36 @@ interface Movie {
   trending: boolean;
 }
 
-export default async function MovieDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+function MovieDetailsContent() {
+  const params = useParams<{ id: string }>();
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundState, setNotFoundState] = useState(false);
 
-  const cookieStore = await cookies();
-  const token = cookieStore.get("cinema_auth_token")?.value;
+  useEffect(() => {
+    fetch(`${API_URL}/movies/${params.id}`, { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) {
+          setNotFoundState(true);
+          return null;
+        }
+        return res.json();
+      })
+      .then((data) => setMovie(data))
+      .finally(() => setLoading(false));
+  }, [params.id]);
 
-  // Login না থাকলে সরাসরি login page-e পাঠাও
-  if (!token) {
-    redirect(`/login?redirect=/movies/${id}`);
+  if (notFoundState) notFound();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center bg-[#0B0B0B]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-red-600" />
+      </div>
+    );
   }
 
-  const res = await fetch(`${API_URL}/movies/${id}`, {
-    headers: { Cookie: `cinema_auth_token=${token}` },
-    cache: "no-store",
-  });
-
-  if (res.status === 401) {
-    redirect(`/login?redirect=/movies/${id}`);
-  }
-
-  if (!res.ok) {
-    notFound();
-  }
-
-  const movie: Movie = await res.json();
+  if (!movie) return null;
 
   return (
     <main className="min-h-screen bg-[#0B0B0B] pb-20">
@@ -67,7 +71,12 @@ export default async function MovieDetailsPage({
         <div className="absolute bottom-0 left-0 w-full px-5 pb-10">
           <div className="mx-auto flex max-w-6xl items-end gap-6">
             <div className="relative hidden h-56 w-40 flex-shrink-0 overflow-hidden rounded-xl border border-white/10 shadow-xl sm:block">
-              <Image src={movie.poster} alt={movie.title} fill className="object-cover" />
+              <Image
+                src={movie.poster}
+                alt={movie.title}
+                fill
+                className="object-cover"
+              />
             </div>
 
             <div>
@@ -83,7 +92,9 @@ export default async function MovieDetailsPage({
               </h1>
 
               {movie.shortDescription && (
-                <p className="mt-2 max-w-xl text-gray-300">{movie.shortDescription}</p>
+                <p className="mt-2 max-w-xl text-gray-300">
+                  {movie.shortDescription}
+                </p>
               )}
 
               <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-300">
@@ -105,20 +116,36 @@ export default async function MovieDetailsPage({
           <div className="space-y-10 lg:col-span-2">
             <div>
               <h2 className="text-2xl font-semibold text-white">Overview</h2>
-              <p className="mt-4 leading-relaxed text-gray-400">{movie.description}</p>
+              <p className="mt-4 leading-relaxed text-gray-400">
+                {movie.description}
+              </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-semibold text-white">Key Information</h2>
+              <h2 className="text-2xl font-semibold text-white">
+                Key Information
+              </h2>
               <div className="mt-4 grid grid-cols-2 gap-4 rounded-2xl border border-white/10 bg-neutral-900 p-6 sm:grid-cols-3">
                 <SpecItem label="Genre" value={movie.genre} />
                 <SpecItem label="Language" value={movie.language} />
                 <SpecItem label="Duration" value={movie.duration} />
-                <SpecItem label="Release Year" value={String(movie.releaseYear)} />
-                <SpecItem label="Rating" value={`${movie.rating.toFixed(1)} / 10`} />
+                <SpecItem
+                  label="Release Year"
+                  value={String(movie.releaseYear)}
+                />
+                <SpecItem
+                  label="Rating"
+                  value={`${movie.rating.toFixed(1)} / 10`}
+                />
                 <SpecItem
                   label="Status"
-                  value={movie.trending ? "Trending" : movie.featured ? "Featured" : "Standard"}
+                  value={
+                    movie.trending
+                      ? "Trending"
+                      : movie.featured
+                      ? "Featured"
+                      : "Standard"
+                  }
                 />
               </div>
             </div>
@@ -126,8 +153,12 @@ export default async function MovieDetailsPage({
 
           <div>
             <div className="rounded-2xl border border-white/10 bg-neutral-900 p-6 text-center">
-              <p className="text-sm uppercase tracking-widest text-gray-400">Audience Rating</p>
-              <p className="mt-3 text-5xl font-bold text-red-500">{movie.rating.toFixed(1)}</p>
+              <p className="text-sm uppercase tracking-widest text-gray-400">
+                Audience Rating
+              </p>
+              <p className="mt-3 text-5xl font-bold text-red-500">
+                {movie.rating.toFixed(1)}
+              </p>
               <p className="mt-1 text-sm text-gray-500">out of 10</p>
             </div>
 
@@ -141,7 +172,9 @@ export default async function MovieDetailsPage({
         </div>
 
         <div className="mt-16">
-          <h2 className="mb-6 text-2xl font-semibold text-white">Related Movies</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-white">
+            Related Movies
+          </h2>
           <RelatedMovies genre={movie.genre} excludeId={movie._id} />
         </div>
       </div>
@@ -155,5 +188,13 @@ function SpecItem({ label, value }: { label: string; value: string }) {
       <p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
       <p className="mt-1 text-white">{value}</p>
     </div>
+  );
+}
+
+export default function MovieDetailsPage() {
+  return (
+    <RequireAuth>
+      <MovieDetailsContent />
+    </RequireAuth>
   );
 }

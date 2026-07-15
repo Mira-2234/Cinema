@@ -1,10 +1,12 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import RequireAuth from "@/components/RequireAuth";
 import ManageItemsTable from "@/components/items/ManageItemsTable";
 import MyMoviesStats from "@/components/items/MyMoviesStats";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
+const API_URL = "https://cinema-server-1.onrender.com";
 
 interface Movie {
   _id: string;
@@ -17,26 +19,20 @@ interface Movie {
   addedBy: string;
 }
 
-async function getMyMovies(token: string): Promise<Movie[]> {
-  const res = await fetch(`${API_URL}/movies/mine`, {
-    headers: { Cookie: `cinema_auth_token=${token}` },
-    cache: "no-store",
-  });
+function ManageItemsContent() {
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!res.ok) return [];
-
-  return res.json();
-}
-
-export default async function ManageItemsPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("cinema_auth_token")?.value;
-
-  if (!token) {
-    redirect("/login?redirect=/items/manage");
-  }
-
-  const movies = await getMyMovies(token);
+  useEffect(() => {
+    fetch(`${API_URL}/movies/mine`, {
+      credentials: "include", // sends cinema_auth_token directly to Render, browser handles it
+      cache: "no-store",
+    })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setMovies(data))
+      .catch(() => setMovies([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#0B0B0B] px-5 pt-28 pb-20">
@@ -53,7 +49,11 @@ export default async function ManageItemsPage() {
               Manage Your Movies
             </h1>
             <p className="mt-3 text-gray-400">
-              {movies.length} {movies.length === 1 ? "movie" : "movies"} added by you.
+              {loading
+                ? "Loading your movies…"
+                : `${movies.length} ${
+                    movies.length === 1 ? "movie" : "movies"
+                  } added by you.`}
             </p>
           </div>
 
@@ -65,11 +65,23 @@ export default async function ManageItemsPage() {
           </Link>
         </div>
 
-        {movies.length === 0 ? (
+        {loading ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-40 animate-pulse rounded-2xl border border-white/10 bg-neutral-900"
+              />
+            ))}
+          </div>
+        ) : movies.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-neutral-900 px-6 py-16 text-center">
-            <p className="text-lg text-white">You haven't added any movies yet.</p>
+            <p className="text-lg text-white">
+              You haven&apos;t added any movies yet.
+            </p>
             <p className="mt-2 text-sm text-gray-400">
-              Click "Add Movie" above to contribute your first title.
+              Click &quot;Add Movie&quot; above to contribute your first
+              title.
             </p>
           </div>
         ) : (
@@ -80,5 +92,13 @@ export default async function ManageItemsPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ManageItemsPage() {
+  return (
+    <RequireAuth>
+      <ManageItemsContent />
+    </RequireAuth>
   );
 }
