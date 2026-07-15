@@ -5,6 +5,18 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: {
+          disableAutoSelect: () => void;
+        };
+      };
+    };
+  }
+}
+
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
@@ -12,6 +24,11 @@ export default function Navbar() {
 
   async function handleLogout() {
     await logout();
+
+    if (typeof window !== "undefined" && window.google?.accounts?.id) {
+      window.google.accounts.id.disableAutoSelect();
+    }
+
     setMenuOpen(false);
     router.push("/");
     router.refresh();
@@ -33,7 +50,6 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0B0B]/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-      
         <Link
           href="/"
           className="text-2xl font-bold tracking-widest text-white"
@@ -42,7 +58,6 @@ export default function Navbar() {
           REELBOX
         </Link>
 
-     
         <nav className="hidden items-center gap-10 md:flex">
           {links.map((link) => (
             <Link
@@ -55,7 +70,6 @@ export default function Navbar() {
           ))}
         </nav>
 
-      
         <div className="hidden items-center gap-4 md:flex">
           {loading ? (
             <div className="h-9 w-24 animate-pulse rounded-full bg-white/10" />
@@ -114,7 +128,6 @@ export default function Navbar() {
           )}
         </div>
 
-   
         <button
           onClick={() => setMenuOpen((v) => !v)}
           className="text-white md:hidden"
@@ -131,7 +144,6 @@ export default function Navbar() {
         </button>
       </div>
 
-     
       {menuOpen && (
         <div className="border-t border-white/10 bg-[#0B0B0B] px-5 py-4 md:hidden">
           <nav className="flex flex-col gap-4">
@@ -148,7 +160,6 @@ export default function Navbar() {
 
             {user ? (
               <>
-                
                 <button
                   onClick={handleLogout}
                   className="text-left text-sm text-red-400"
