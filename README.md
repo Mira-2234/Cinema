@@ -7,7 +7,7 @@ ReelBox is a modern full-stack movie discovery platform where users can explore 
 # 🌐 Live Website
 
 Frontend:
-[[https://your-vercel-link.vercel.app](https://cinema-oxuv-theta.vercel.app/)](https://assignment-9-client-mu.vercel.app/)
+https://cinema-oxuv-theta.vercel.app/
 
 ---
 
